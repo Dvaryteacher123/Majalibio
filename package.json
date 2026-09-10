@@ -1,0 +1,13 @@
+{
+  "name": "dvary-game",
+  "version": "1.0.0",
+  "description": "Backend ya Dvary game na FimiPay",
+  "main": "servel.js",
+  "scripts": {
+    "start": "node servel.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
+
