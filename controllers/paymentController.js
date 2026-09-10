@@ -1,34 +1,56 @@
-const fanyaMalipoFimi = async (req, res) => {
+const axios = require('axios');
+
+const fanyaMalipoHarakaPay = async (req, res) => {
     try {
         const { buyer_phone, amount } = req.body;
-        const apiKey = process.env.FIMIPAY_API_KEY;
+        
+        // Tunachukua API Key kutoka kwenye mazingira ya Render au .env
+        const API_KEY = process.env.HARAKAPAY_API_KEY; 
+        const BASE_URL = 'https://harakapay.net';
 
-        const malipoData = {
-            payment_method: "mobile",
-            channel: "mobile",
+        // Tunatuma ombi kwenda HarakaPay kama nyaraka zao zinavyoelekeza
+        const response = await axios.post(`${BASE_URL}/api/v1/collect`, {
+            phone: buyer_phone,
             amount: amount || 1000,
-            currency: "TZS",
-            buyer_phone: buyer_phone,
-            environment: "test",
-            test_outcome: "success"
-        };
+            description: "Usajili wa Dvary Game",
+            webhook_url: "https://majalibio.onrender.com/api/webhook/harakapay" // Badilisha na link yako halisi ya Render
+        }, {
+            headers: { 
+                'X-API-Key': API_KEY,
+                'Content-Type': 'application/json'
+            }
+        });
 
-        console.log("API Key inayotumika:", apiKey);
-        console.log("Ombi la malipo limepokelewa:", malipoData);
-
+        // Tunamrudishia jibu mchezaji
         res.status(200).json({
             status: "success",
-            message: "Ombi la malipo limerekodiwa kikamilifu!",
-            data: malipoData
+            message: "Ombi la malipo limetumwa kupitia HarakaPay!",
+            data: response.data
         });
 
     } catch (error) {
         res.status(500).json({
             status: "failed",
-            message: error.message
+            message: error.response ? error.response.data : error.message
         });
     }
 };
 
-module.exports = { fanyaMalipoFimi };
+// Seva ya kusikiliza Webhook kutoka HarakaPay
+const pokeaWebhookHarakaPay = async (req, res) => {
+    try {
+        const taarifaZaMalipo = req.body;
+        console.log("Webhook imepokelewa kutoka HarakaPay:", taarifaZaMalipo);
 
+        // Angalia kama malipo yamekamilika (completed)
+        if (taarifaZaMalipo.status === "completed") {
+            console.log("Malipo yamekamilika kikamilifu na HarakaPay!");
+        }
+
+        res.status(200).json({ received: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+module.exports = { fanyaMalipoHarakaPay, pokeaWebhookHarakaPay };
