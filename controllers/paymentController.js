@@ -25,9 +25,10 @@ const fanyaMalipoHarakaPay = async (req, res) => {
         });
 
     } catch (error) {
+        // Hapa tunabadilisha ili isitume object tupu bali itoe maandishi ya kosa
         res.status(500).json({
             status: "failed",
-            message: error.response ? error.response.data : error.message
+            message: error.response && error.response.data ? error.response.data : error.message
         });
     }
 };
@@ -48,3 +49,4 @@ const pokeaWebhookHarakaPay = async (req, res) => {
 };
 
 module.exports = { fanyaMalipoHarakaPay, pokeaWebhookHarakaPay };
+
